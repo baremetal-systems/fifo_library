@@ -1,0 +1,34 @@
+vunit i_simple_fifo(simple_fifo(synthesis))
+{
+    default clock is rising_edge(clk);
+
+    f_reset         : assume {rst};
+
+    f_after_reset_empty : assert always {rst} |=> {empty = '1'};
+    f_after_reset_full  : assert always {rst} |=> {full = '0'};
+    f_after_reset_pointer : assert always {rst} |=> {unsigned(write_pointer) = 0 and unsigned(read_pointer) = 0};
+
+    full_write_pointer : assert always(unsigned(write_pointer) < FIFO_DEPTH);
+    full_read_pointer  : assert always(unsigned(read_pointer) < FIFO_DEPTH);
+
+    valid_count_flag_read : assert always {acc_counter(FIFO_DEPTH) = '1'} |=> {full_flag_reg = '1' and empty_flag_reg = '0'};
+    valid_counf_flag_empty : assert always {acc_counter(0)and not rst} |=> {full_flag_reg = '0' and empty_flag_reg = '1'};
+    invalid_access : assert always {write_flag and read_flag and not rst} |-> {acc_confl_flag = '1'};
+
+    c_fifo_empty_to_full  : cover {
+          empty_flag_reg = '1'
+        ; empty_flag_reg = '0'[*]
+        ; empty_flag_reg = '0' and full_flag_reg = '1'
+--        ; rst = '0'[*]
+--        ; acc_counter(FIFO_DEPTH) = '1' --full = '1' --and unsigned(read_pointer) = 0 
+    };
+
+--    c_fifo_full_to_empty : cover {
+--          full = '1' and rst = '0'
+--        ; rst = '0'[*]
+--       ; rst = '0' and acc_counter(0) = '1' 
+--        ; rst = '0'[*]
+--        ; empty = '1'
+--    };
+
+}

@@ -1,0 +1,22 @@
+[tasks]
+bmc
+cover
+
+[options]
+bmc: mode bmc
+depth 10
+
+cover: mode cover
+
+[engines]
+smtbmc
+
+[script]
+ghdl --std=08 simple_fifo.vhd simple_fifo.psl -e simple_fifo
+prep -top simple_fifo
+opt_merge -share_all
+
+[files]
+simple_fifo.psl
+../../rtl/vhdl/simple_fifo.vhd
+
